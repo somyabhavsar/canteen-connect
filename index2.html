@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Staff Dashboard</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #ffecd2, #fcb69f);
+      color: #333;
+    }
+
+    header {
+      background-color: #ff6f61;
+      color: white;
+      padding: 1rem;
+      text-align: center;
+      font-size: 1.5rem;
+    }
+
+    main {
+      max-width: 800px;
+      margin: 2rem auto;
+      padding: 1rem;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      text-align: center;
+      color: #ff6f61;
+    }
+
+    .order {
+      border: 1px solid #eee;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      padding: 1rem;
+      background-color: #fff9f5;
+    }
+
+    .order h3 {
+      margin-top: 0;
+    }
+
+    ul {
+      list-style-type: none;
+      padding-left: 0;
+    }
+
+    li {
+      margin: 0.5rem 0;
+    }
+
+    button {
+      margin-top: 1rem;
+      padding: 0.5rem 1rem;
+      background-color: #ff6f61;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #e0564a;
+    }
+
+    .no-orders {
+      text-align: center;
+      font-style: italic;
+      color: #777;
+    }
+  </style>
+</head>
+<body>
+  <header>Staff Dashboard</header>
+  <main>
+    <h2>Pending Orders</h2>
+    <div id="ordersContainer"></div>
+  </main>
+
+  <script>
+    function loadOrders() {
+      const ordersContainer = document.getElementById("ordersContainer");
+      const orders = JSON.parse(localStorage.getItem("orders")) || [];
+      const pendingOrders = orders.filter(order => order.status === "pending");
+
+      ordersContainer.innerHTML = "";
+
+      if (pendingOrders.length === 0) {
+        ordersContainer.innerHTML = "<p class='no-orders'>No pending orders.</p>";
+        return;
+      }
+
+      pendingOrders.forEach(order => {
+        const orderDiv = document.createElement("div");
+        orderDiv.className = "order";
+
+        const header = document.createElement("h3");
+        header.textContent = `Order #${order.id}`;
+        orderDiv.appendChild(header);
+
+        const itemList = document.createElement("ul");
+        order.items.forEach(item => {
+          const li = document.createElement("li");
+          li.textContent = `${item.name} - ₹${item.price}`;
+          itemList.appendChild(li);
+        });
+        orderDiv.appendChild(itemList);
+
+        const completeBtn = document.createElement("button");
+        completeBtn.textContent = "Mark as Completed";
+        completeBtn.onclick = () => {
+          markOrderCompleted(order.id);
+        };
+        orderDiv.appendChild(completeBtn);
+
+        ordersContainer.appendChild(orderDiv);
+      });
+    }
+
+    function markOrderCompleted(orderId) {
+      let orders = JSON.parse(localStorage.getItem("orders")) || [];
+      orders = orders.map(order => {
+        if (order.id === orderId) {
+          order.status = "completed";
+        }
+        return order;
+      });
+      localStorage.setItem("orders", JSON.stringify(orders));
+      loadOrders();
+    }
+
+    document.addEventListener("DOMContentLoaded", loadOrders);
+  </script>
+</body>
+</html>
